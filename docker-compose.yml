@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: complaints
+      POSTGRES_USER: complaints
+      POSTGRES_PASSWORD: complaints
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U complaints -d complaints"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://complaints:complaints@postgres:5432/complaints
+      LLM_PROVIDER: ${LLM_PROVIDER:-disabled}
+      LLM_API_BASE_URL: ${LLM_API_BASE_URL:-http://host.docker.internal:11434}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-llama3.2}
+      CORS_ORIGINS: http://localhost:8501,http://127.0.0.1:8501
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    environment:
+      DASHBOARD_API_URL: http://backend:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

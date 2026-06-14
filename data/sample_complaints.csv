@@ -1,0 +1,34 @@
+text,category
+"I was charged twice for my monthly subscription and need this fixed.",billing
+"The invoice amount is incorrect and shows an overcharged payment.",billing
+"My payment failed but money was deducted from my bank account.",billing
+"The renewal price is different from what was promised.",billing
+"The mobile app crashes whenever I try to login.",technical
+"I cannot reset my password because the OTP never arrives.",technical
+"Your website shows a server error after checkout.",technical
+"The service has been down all morning and nothing is working.",technical
+"My package never arrived even though tracking says delivered.",delivery
+"The courier delayed my shipment for three days.",delivery
+"The parcel is stuck at the warehouse with no update.",delivery
+"The delivery address was correct but the order went somewhere else.",delivery
+"The product arrived broken and has scratches on the screen.",product_quality
+"The item is defective and stops working after ten minutes.",product_quality
+"The box had a missing part and poor quality accessories.",product_quality
+"The food product was spoiled when it reached me.",product_quality
+"I need to change the email address on my account.",account
+"Please cancel my account and stop future renewals.",account
+"My profile details are wrong after the KYC update.",account
+"I cannot upgrade my plan from the account settings page.",account
+"My account was hacked and I see an unauthorized transaction.",fraud_security
+"This looks like fraud because someone used my card without permission.",fraud_security
+"I received a phishing message pretending to be your support team.",fraud_security
+"There may be a data breach because my personal details were exposed.",fraud_security
+"I returned the item but the refund has not been credited.",refund
+"I want my money back for the cancelled order.",refund
+"The chargeback request is pending for more than a week.",refund
+"Refund now because the order was cancelled by your team.",refund
+"I have a general complaint about the customer service experience.",general
+"I want to talk to a manager about repeated poor support.",general
+"Your team has not responded to my previous complaint.",general
+"I am disappointed with the overall experience and need help.",general
+
