@@ -6,6 +6,8 @@ The implementation is intentionally modular:
 
 - FastAPI backend for ingestion, classification, routing, SLA, and dashboard APIs.
 - Local LLM integration through Ollama, defaulting to `llama3.2`.
+- Agentic workflow orchestration with LangGraph.
+- LangChain chat model adapters for Ollama and OpenAI-compatible LLM endpoints.
 - Local TF-IDF classifier training path with scikit-learn.
 - Deterministic keyword fallback so the demo works even without an LLM.
 - SQLite by default for local use; PostgreSQL via Docker Compose for a production-like run.
@@ -32,14 +34,14 @@ The implementation is intentionally modular:
                                                 |                       |
                                                 v                       v
                                       +---------+--------+   +----------+----------+
-                                      | Database         |   | LLM / TF-IDF /      |
-                                      | SQLite/Postgres  |   | Keyword Classifier  |
+                                      | Database         |   | LangGraph Agent     |
+                                      | SQLite/Postgres  |   | Workflow            |
                                       +---------+--------+   +----------+----------+
                                                 ^                       |
                                                 |                       v
                                       +---------+--------+   +----------+----------+
-                                      | SLA Worker       |   | Rule + Routing     |
-                                      | escalations      |   | Engines            |
+                                      | SLA Worker       |   | LangChain LLM +    |
+                                      | escalations      |   | Rule Tools         |
                                       +------------------+   +---------------------+
 ```
 
@@ -48,8 +50,8 @@ The implementation is intentionally modular:
 | Component | Responsibility |
 | --- | --- |
 | Ingestion API | Accepts complaint text and customer metadata through `POST /create-ticket`. |
-| Processing Engine | Orchestrates classification, sentiment, priority, routing, SLA, and persistence. |
-| ML Model | Uses local LLM when configured, local TF-IDF model when trained, and keyword fallback otherwise. |
+| Processing Engine | Uses a LangGraph workflow to orchestrate classification, priority, routing, SLA, and agent review. |
+| ML Model | Uses LangChain to call the configured local LLM, local TF-IDF model when trained, and keyword fallback otherwise. |
 | Rule Engine | Converts sentiment, keywords, category, and customer tier into priority. |
 | Routing Engine | Maps category and overrides to operational teams. |
 | SLA Engine | Assigns deadlines by priority and computes countdown, due-soon, breached states. |
@@ -64,9 +66,10 @@ The implementation is intentionally modular:
 4. Priority engine evaluates sentiment, critical keywords, category risk, and customer tier.
 5. Routing engine maps the category to a team and applies VIP/security overrides.
 6. SLA engine assigns a deadline based on priority.
-7. Ticket is stored in the database with the full decision trail.
-8. Dashboard polls `GET /dashboard` and shows countdowns and escalation alerts.
-9. Worker or dashboard request marks breached tickets as escalated.
+7. LangGraph optionally runs an agent review node for high-risk or low-confidence tickets.
+8. Ticket is stored in the database with the full decision trail and workflow trace.
+9. Dashboard polls `GET /dashboard` and shows countdowns and escalation alerts.
+10. Worker or dashboard request marks breached tickets as escalated.
 
 ## Production-Ready Folder Structure
 
@@ -79,6 +82,7 @@ The implementation is intentionally modular:
 |   |   |-- db/                  # SQLAlchemy models and sessions
 |   |   |-- schemas/             # request/response contracts
 |   |   |-- services/            # NLP, priority, routing, SLA, ticket orchestration
+|   |   |   `-- agentic/          # LangGraph complaint-processing workflow
 |   |   |-- workers/             # background escalation worker
 |   |   `-- main.py              # FastAPI application
 |   `-- tests/                   # focused engine tests
@@ -154,6 +158,37 @@ LLM_MODEL=your-model-name
 ```
 
 If the LLM is unavailable or returns low confidence, the backend automatically falls back to the trained TF-IDF model, then keyword rules.
+
+## Agentic LangGraph Workflow
+
+Ticket creation now flows through `ComplaintAgentWorkflow`:
+
+```text
+START
+  -> preprocess
+  -> classify              # LangChain LLM, TF-IDF, or keyword fallback
+  -> prioritize            # rule tool
+  -> route                 # routing tool
+  -> assign_sla            # SLA tool
+  -> agent_review?         # conditional node for critical/high/low-confidence cases
+  -> finalize
+  -> END
+```
+
+The workflow stores an `agentic_workflow` object inside ticket metadata:
+
+```json
+{
+  "version": "langgraph-agentic-v1",
+  "requires_human_review": true,
+  "recommended_actions": ["Notify the team lead and monitor SLA countdown closely."],
+  "escalation_summary": "High-risk complaint routed for urgent follow-up.",
+  "trace": [
+    {"node": "preprocess", "details": {"characters": 72}},
+    {"node": "classify", "details": {"category": "fraud_security", "source": "llm"}}
+  ]
+}
+```
 
 ## API Examples
 

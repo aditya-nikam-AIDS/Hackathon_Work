@@ -29,6 +29,13 @@ The Streamlit dashboard polls for hackathon simplicity. Production options:
 - Server-sent events for SLA countdown and alerts.
 - Kafka consumer that pushes updates into Redis pub/sub.
 
+## LangGraph Production Path
+
+- Add a checkpointer to persist graph state between nodes.
+- Stream graph events to the dashboard for live workflow visibility.
+- Add a human-in-the-loop interrupt before finalizing critical security tickets.
+- Send traces to LangSmith for debugging, prompt evaluation, and regression checks.
+
 ## Feedback Loop
 
 Agents should be able to correct:

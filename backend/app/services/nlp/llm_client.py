@@ -1,8 +1,7 @@
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any
-
-import httpx
 
 from backend.app.core.config import Settings
 
@@ -28,9 +27,18 @@ class LLMAnalysis:
     reason: str = ""
 
 
+@dataclass
+class LLMActionPlan:
+    requires_human_review: bool = False
+    recommended_actions: list[str] = field(default_factory=list)
+    escalation_summary: str = ""
+    confidence: float = 0.0
+
+
 class LLMClient:
     def __init__(self, settings: Settings):
         self.settings = settings
+        self._chat_model = None
 
     @property
     def enabled(self) -> bool:
@@ -40,56 +48,101 @@ class LLMClient:
         if not self.enabled:
             return None
 
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You classify customer complaints for a support routing system. "
-                    "Return only valid JSON with keys: category, sentiment_score, "
-                    "urgency_signals, confidence, reason. category must be one of "
-                    f"{sorted(ALLOWED_CATEGORIES)}. sentiment_score is -1 to 1."
-                ),
-            },
-            {"role": "user", "content": text},
-        ]
+        system_prompt = (
+            "You classify customer complaints for a support routing system. "
+            "Return only valid JSON with keys: category, sentiment_score, "
+            "urgency_signals, confidence, reason. category must be one of "
+            f"{sorted(ALLOWED_CATEGORIES)}. sentiment_score is -1 to 1."
+        )
 
         try:
-            if self.settings.llm_provider == "ollama":
-                payload = {
-                    "model": self.settings.llm_model,
-                    "messages": messages,
-                    "stream": False,
-                    "format": "json",
-                    "options": {"temperature": 0.1},
-                }
-                url = f"{self.settings.llm_api_base_url.rstrip('/')}/api/chat"
-                async with httpx.AsyncClient(timeout=self.settings.llm_timeout_seconds) as client:
-                    response = await client.post(url, json=payload)
-                    response.raise_for_status()
-                content = response.json()["message"]["content"]
-                return self._parse_analysis(content)
-
-            payload = {
-                "model": self.settings.llm_model,
-                "messages": messages,
-                "temperature": 0.1,
-                "response_format": {"type": "json_object"},
-            }
-            headers = {"Content-Type": "application/json"}
-            if self.settings.llm_api_key:
-                headers["Authorization"] = f"Bearer {self.settings.llm_api_key}"
-
-            url = f"{self.settings.llm_api_base_url.rstrip('/')}/chat/completions"
-            async with httpx.AsyncClient(timeout=self.settings.llm_timeout_seconds) as client:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
-            return self._parse_analysis(content)
-        except (httpx.HTTPError, KeyError, ValueError, json.JSONDecodeError):
+            data = await self._invoke_json(system_prompt, text)
+            return self._parse_analysis(data)
+        except Exception:
             return None
 
+    async def generate_action_plan(
+        self,
+        *,
+        complaint_text: str,
+        category: str,
+        priority: str,
+        team: str,
+        sla_deadline: str,
+    ) -> LLMActionPlan | None:
+        if not self.enabled:
+            return None
+
+        system_prompt = (
+            "You are an agentic support triage supervisor. "
+            "Create an operational action plan for a newly routed customer complaint. "
+            "Return only valid JSON with keys: requires_human_review, recommended_actions, "
+            "escalation_summary, confidence. recommended_actions must be a list of short actions."
+        )
+        user_prompt = json.dumps(
+            {
+                "complaint_text": complaint_text,
+                "category": category,
+                "priority": priority,
+                "team": team,
+                "sla_deadline": sla_deadline,
+            }
+        )
+
+        try:
+            data = await self._invoke_json(system_prompt, user_prompt)
+            actions = data.get("recommended_actions", [])
+            if not isinstance(actions, list):
+                actions = [str(actions)]
+            return LLMActionPlan(
+                requires_human_review=bool(data.get("requires_human_review", False)),
+                recommended_actions=[str(action) for action in actions[:5]],
+                escalation_summary=str(data.get("escalation_summary", "")),
+                confidence=max(0.0, min(1.0, float(data.get("confidence", 0.0)))),
+            )
+        except Exception:
+            return None
+
+    async def _invoke_json(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+        from langchain_core.messages import HumanMessage, SystemMessage
+
+        response = await self._get_chat_model().ainvoke(
+            [
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_prompt),
+            ]
+        )
+        return self._extract_json(self._content_to_text(response.content))
+
+    def _get_chat_model(self):
+        if self._chat_model is not None:
+            return self._chat_model
+
+        if self.settings.llm_provider == "ollama":
+            from langchain_ollama import ChatOllama
+
+            self._chat_model = ChatOllama(
+                model=self.settings.llm_model,
+                base_url=self.settings.llm_api_base_url,
+                temperature=0,
+                format="json",
+                timeout=self.settings.llm_timeout_seconds,
+            )
+            return self._chat_model
+
+        from langchain_openai import ChatOpenAI
+
+        self._chat_model = ChatOpenAI(
+            model=self.settings.llm_model,
+            base_url=self.settings.llm_api_base_url,
+            api_key=self.settings.llm_api_key,
+            temperature=0,
+            timeout=self.settings.llm_timeout_seconds,
+        )
+        return self._chat_model
+
     def _parse_analysis(self, content: str | dict[str, Any]) -> LLMAnalysis:
-        data = content if isinstance(content, dict) else json.loads(content)
+        data = content if isinstance(content, dict) else self._extract_json(content)
         category = str(data.get("category", "general")).strip().lower()
         if category not in ALLOWED_CATEGORIES:
             category = "general"
@@ -108,3 +161,28 @@ class LLMClient:
             reason=str(data.get("reason", "")),
         )
 
+    def _content_to_text(self, content: Any) -> str:
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            parts = []
+            for item in content:
+                if isinstance(item, dict):
+                    parts.append(str(item.get("text") or item.get("content") or ""))
+                else:
+                    parts.append(str(item))
+            return "\n".join(parts)
+        return str(content)
+
+    def _extract_json(self, content: str) -> dict[str, Any]:
+        cleaned = content.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```(?:json)?", "", cleaned).strip()
+            cleaned = re.sub(r"```$", "", cleaned).strip()
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
+            if not match:
+                raise
+            return json.loads(match.group(0))

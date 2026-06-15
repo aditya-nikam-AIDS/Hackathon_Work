@@ -5,8 +5,9 @@
 | Layer | Hackathon Choice | Production Upgrade |
 | --- | --- | --- |
 | API | FastAPI | FastAPI behind API gateway |
-| NLP | Local LLM + TF-IDF fallback | Model service, model registry, batch evaluation |
-| Rules | Python services | Versioned rules in database or policy engine |
+| NLP | LangChain local LLM + TF-IDF fallback | Model service, model registry, batch evaluation |
+| Workflow | LangGraph StateGraph | Durable LangGraph deployment with tracing |
+| Rules | Python tools called by graph nodes | Versioned rules in database or policy engine |
 | Database | SQLite local, PostgreSQL in Docker | Managed PostgreSQL with replicas |
 | Dashboard | Streamlit | React, WebSocket, RBAC |
 | Queue | Optional worker loop | Kafka or RabbitMQ |
@@ -17,21 +18,36 @@
 ```text
 Incoming complaint
   -> validate request
-  -> classify complaint category
-  -> score sentiment
-  -> apply priority rules
-  -> route to team
-  -> assign SLA deadline
+  -> LangGraph preprocess node
+  -> LangGraph classify node
+  -> LangGraph priority node
+  -> LangGraph routing node
+  -> LangGraph SLA node
+  -> conditional agent review node
   -> persist ticket
   -> expose dashboard metrics
   -> escalate if breached
 ```
 
+## LangGraph Agent Workflow
+
+The backend uses `StateGraph` with explicit nodes:
+
+| Node | What it does |
+| --- | --- |
+| preprocess | Normalizes complaint text and records input stats. |
+| classify | Calls the classifier. The classifier uses LangChain LLM first, then TF-IDF, then keyword fallback. |
+| prioritize | Calls the priority rule tool. |
+| route | Calls the routing rule tool. |
+| assign_sla | Calls the SLA tool and writes the deadline. |
+| agent_review | Runs only for critical, high, fraud/security, or low-confidence tickets. Produces human-review flag and recommended actions. |
+| finalize | Adds workflow metadata and closes the graph. |
+
 ## NLP Strategy
 
 The classifier uses layered reliability:
 
-1. Local LLM, for example `llama3.2`: best semantic understanding when an LLM endpoint is configured.
+1. Local LLM through LangChain, for example `llama3.2`: best semantic understanding when an LLM endpoint is configured.
 2. TF-IDF classifier: fast local model trained with `scripts/train_classifier.py`.
 3. Keyword fallback: deterministic category mapping for demos and outages.
 

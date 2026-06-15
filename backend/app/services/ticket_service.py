@@ -9,42 +9,45 @@ from sqlalchemy.orm import Session
 from backend.app.core.config import get_settings
 from backend.app.db.models import Ticket
 from backend.app.schemas.tickets import ComplaintCreate, DashboardResponse, TicketResponse
-from backend.app.services.nlp.classifier import ComplaintClassifier
-from backend.app.services.priority_engine import PriorityEngine
-from backend.app.services.routing_engine import RoutingEngine
+from backend.app.services.agentic.workflow import ComplaintAgentWorkflow
 from backend.app.services.sla_engine import SLAEngine
 
 
 class TicketService:
     def __init__(self):
         settings = get_settings()
-        self.classifier = ComplaintClassifier(settings)
-        self.priority_engine = PriorityEngine()
-        self.routing_engine = RoutingEngine()
+        self.agent_workflow = ComplaintAgentWorkflow(settings)
         self.sla_engine = SLAEngine()
 
     async def create_ticket(self, db: Session, payload: ComplaintCreate) -> TicketResponse:
         created_at = datetime.now(timezone.utc)
-        classification = await self.classifier.classify(payload.complaint_text)
-        priority_decision = self.priority_engine.decide(
-            text=payload.complaint_text,
-            category=classification.category,
-            sentiment_score=classification.sentiment_score,
+        decision = await self.agent_workflow.process(
+            complaint_text=payload.complaint_text,
+            customer_id=payload.customer_id,
             customer_tier=payload.customer_tier,
+            metadata=payload.metadata,
+            created_at=created_at,
         )
-        routing_decision = self.routing_engine.route(
-            category=classification.category,
-            priority=priority_decision.priority,
-            customer_tier=payload.customer_tier,
-        )
-        sla_deadline = self.sla_engine.deadline_for(created_at=created_at, priority=priority_decision.priority)
+        classification = decision.classification
+        priority_decision = decision.priority_decision
+        routing_decision = decision.routing_decision
+        metadata = {
+            **payload.metadata,
+            "agentic_workflow": {
+                "version": decision.workflow_version,
+                "requires_human_review": decision.requires_human_review,
+                "recommended_actions": decision.recommended_actions,
+                "escalation_summary": decision.escalation_summary,
+                "trace": decision.agent_trace,
+            },
+        }
 
         ticket = Ticket(
             id=str(uuid4()),
             complaint_text=payload.complaint_text,
             customer_id=payload.customer_id,
             customer_tier=payload.customer_tier,
-            metadata_json=json.dumps(payload.metadata),
+            metadata_json=json.dumps(metadata),
             category=classification.category,
             classification_confidence=classification.confidence,
             classification_source=classification.source,
@@ -53,7 +56,7 @@ class TicketService:
             priority_reason=priority_decision.reason,
             team=routing_decision.team,
             status="open",
-            sla_deadline=sla_deadline,
+            sla_deadline=decision.sla_deadline,
             created_at=created_at,
             updated_at=created_at,
         )
