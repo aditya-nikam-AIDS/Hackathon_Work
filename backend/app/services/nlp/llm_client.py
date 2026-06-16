@@ -50,6 +50,7 @@ class LLMClient:
         system_prompt = (
             "You are an AI system for BANKING CUSTOMER SUPPORT. "
             "Classify customer complaints into banking categories. "
+            "Do not call tools. Do not include markdown, analysis, or extra text. "
             "Return only valid JSON with keys: category, sentiment_score, "
             "urgency_signals, confidence, reason. "
             f"category must be one of {sorted(ALLOWED_CATEGORIES)}. "
@@ -83,6 +84,7 @@ class LLMClient:
             "You are a BANKING support triage supervisor. "
             "Create an operational action plan for a customer banking complaint. "
             "Consider regulatory compliance, customer protection, and banking SLAs. "
+            "Do not call tools. Do not include markdown, analysis, or extra text. "
             "Return only valid JSON with keys: requires_human_review, recommended_actions, "
             "escalation_summary, confidence. recommended_actions must be a list of short banking-specific actions."
         )
@@ -145,6 +147,7 @@ class LLMClient:
             api_key=self.settings.llm_api_key,
             temperature=0,
             timeout=self.settings.llm_timeout_seconds,
+            model_kwargs={"response_format": {"type": "json_object"}},
         )
         return self._chat_model
 

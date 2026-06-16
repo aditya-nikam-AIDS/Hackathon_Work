@@ -21,6 +21,7 @@ class ComplaintWorkflowState(TypedDict, total=False):
     customer_id: str | None
     customer_tier: str
     metadata: dict[str, Any]
+    classification_mode: Literal["auto", "llm", "tfidf"]
     created_at: datetime
     cleaned_text: str
     classification: ClassificationResult
@@ -64,6 +65,7 @@ class ComplaintAgentWorkflow:
         customer_tier: str,
         metadata: dict[str, Any],
         created_at: datetime,
+        classification_mode: Literal["auto", "llm", "tfidf"] = "auto",
     ) -> AgenticTicketDecision:
         state = await self.graph.ainvoke(
             {
@@ -71,6 +73,7 @@ class ComplaintAgentWorkflow:
                 "customer_id": customer_id,
                 "customer_tier": customer_tier,
                 "metadata": metadata,
+                "classification_mode": classification_mode,
                 "created_at": created_at,
                 "agent_trace": [],
                 "recommended_actions": [],
@@ -122,7 +125,10 @@ class ComplaintAgentWorkflow:
         }
 
     async def _classify(self, state: ComplaintWorkflowState) -> dict[str, Any]:
-        classification = await self.classifier.classify(state["complaint_text"])
+        classification = await self.classifier.classify(
+            state["complaint_text"],
+            mode=state.get("classification_mode", "auto"),
+        )
         return {
             "classification": classification,
             "agent_trace": self._trace(
@@ -132,6 +138,7 @@ class ComplaintAgentWorkflow:
                     "category": classification.category,
                     "confidence": round(classification.confidence, 3),
                     "source": classification.source,
+                    "requested_mode": state.get("classification_mode", "auto"),
                 },
             ),
         }

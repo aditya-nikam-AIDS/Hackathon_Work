@@ -15,6 +15,20 @@ PRIORITIES = ["all", "critical", "high", "medium", "low"]
 STATUSES = ["all", "open", "in_progress", "resolved", "closed"]
 SORT_OPTIONS = ["SLA urgency", "Priority", "Newest first", "Oldest first"]
 PAGE_SIZES = [10, 25, 50, 100]
+CLASSIFICATION_MODES = {
+    "LLM Assisted": "llm",
+    "TF-IDF Only": "tfidf",
+}
+FALLBACK_TEAMS = [
+    "Customer Support Team",
+    "Payments Team",
+    "Fraud Investigation Team",
+    "Fraud Incident Response Team",
+    "Loan Department",
+    "IT Support Team",
+    "Priority Banking Desk",
+    "Relationship Manager Team",
+]
 
 # ----------------------------------------------------------------------------
 # Color tokens — Banking theme with professional colors
@@ -608,6 +622,10 @@ def api_post(api_url: str, path: str, payload: dict[str, Any]) -> Any:
     return response.json()
 
 
+def source_display(source: str) -> str:
+    return SOURCE_ICONS.get(str(source).lower(), str(source).upper())
+
+
 def format_duration(seconds: int) -> str:
     prefix = "-" if seconds < 0 else ""
     seconds = abs(int(seconds))
@@ -748,10 +766,14 @@ with st.sidebar:
     try:
         templates_data = api_get(api_url, "/templates")
         templates = templates_data.get("templates", {})
+
+        teams_data = api_get(api_url, "/teams")
+        available_teams = teams_data.get("teams", FALLBACK_TEAMS)
         
         metrics_data = api_get(api_url, "/metrics")
     except:
         templates = {}
+        available_teams = FALLBACK_TEAMS
         metrics_data = {}
     
     # Quick actions with templates
@@ -796,6 +818,12 @@ with st.sidebar:
                 ["standard", "premium", "vip", "trial"],
                 format_func=lambda t: f"[{TIER_ICONS.get(t, 'STD')}] {t.title()}",
             )
+        classification_label = st.radio(
+            "Classification Engine",
+            list(CLASSIFICATION_MODES.keys()),
+            horizontal=True,
+            help="LLM Assisted uses the configured LLM first. TF-IDF Only skips LLM calls and uses the trained local model.",
+        )
         
         # Validation hints
         char_count = len(complaint_text)
@@ -812,7 +840,13 @@ with st.sidebar:
         elif len(complaint_text.strip()) < 10:
             st.error("❌ Complaint is too short. Please provide more details.")
         else:
-            with st.spinner("Processing ticket... This may take up to 90 seconds for LLM classification."):
+            mode = CLASSIFICATION_MODES[classification_label]
+            spinner_text = (
+                "Processing ticket with LLM assistance..."
+                if mode == "llm"
+                else "Processing ticket with the local TF-IDF model..."
+            )
+            with st.spinner(spinner_text):
                 try:
                     created = api_post(
                         api_url,
@@ -821,6 +855,7 @@ with st.sidebar:
                             "complaint_text": complaint_text,
                             "customer_id": customer_id or None,
                             "customer_tier": customer_tier,
+                            "classification_mode": mode,
                             "metadata": {"source": "banking_dashboard", "template_used": selected_template if selected_template != "Custom" else None},
                         },
                     )
@@ -842,7 +877,8 @@ with st.sidebar:
                                 Priority: <span class="badge" style="background:{p_color}; font-size:0.65rem;">{esc(created_priority)}</span> | 
                                 Team: <strong>{esc(created.get('team'))}</strong><br>
                                 Category: <strong>{esc(get_category_display(created.get('category', '')))}</strong> | 
-                                Confidence: <strong>{confidence_pct}%</strong>
+                                Confidence: <strong>{confidence_pct}%</strong> |
+                                Source: <strong>{esc(source_display(created.get('classification_source', '')))}</strong>
                             </span>
                         </div>
                     """
@@ -1035,6 +1071,45 @@ st.write("")
 # ----------------------------------------------------------------------------
 st.markdown('<div class="section-title">Banking Ticket Queue</div>', unsafe_allow_html=True)
 
+tickets = dashboard["tickets"]
+if tickets:
+    st.markdown("#### Agent Reroute")
+    ticket_options = {
+        f"{ticket['id'][:8]} | {ticket['team']} | {get_category_display(ticket['category'])} | {ticket['complaint_text'][:70]}": ticket
+        for ticket in tickets
+    }
+    with st.form("reroute_ticket_form"):
+        reroute_cols = st.columns([3, 2, 2])
+        selected_ticket_label = reroute_cols[0].selectbox("Ticket", list(ticket_options.keys()))
+        new_team = reroute_cols[1].selectbox("New Team", available_teams)
+        new_status = reroute_cols[2].selectbox("Status", ["Keep current", "open", "in_progress", "resolved", "closed"])
+        observation = st.text_area(
+            "Observation",
+            height=80,
+            placeholder="Example: LLM action plan indicates possible fraud exposure; move to Fraud Incident Response Team.",
+        )
+        reroute_submitted = st.form_submit_button("Apply Reroute", use_container_width=True)
+
+    if reroute_submitted:
+        selected_ticket = ticket_options[selected_ticket_label]
+        if not observation.strip():
+            st.error("Please add the observation behind this reroute.")
+        else:
+            try:
+                updated = api_post(
+                    api_url,
+                    f"/tickets/{selected_ticket['id']}/reroute",
+                    {
+                        "team": new_team,
+                        "observation": observation,
+                        "status": None if new_status == "Keep current" else new_status,
+                    },
+                )
+                st.success(f"Ticket {updated['id'][:8]} moved to {updated['team']}.")
+                st.rerun()
+            except requests.RequestException as exc:
+                st.error(f"Failed to reroute ticket: {exc}")
+
 filter_cols = st.columns(4)
 priority_filter = filter_cols[0].selectbox("Priority", PRIORITIES)
 status_filter = filter_cols[1].selectbox("Status", STATUSES)
@@ -1048,7 +1123,6 @@ sort_key = control_cols[0].selectbox("Sort by", SORT_OPTIONS)
 view_mode = control_cols[1].radio("View", ["Cards", "Table"], horizontal=True)
 page_size = control_cols[2].selectbox("Per page", PAGE_SIZES, index=1)
 
-tickets = dashboard["tickets"]
 if priority_filter != "all":
     tickets = [ticket for ticket in tickets if ticket["priority"] == priority_filter]
 if status_filter != "all":

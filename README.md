@@ -176,23 +176,38 @@ python scripts/seed_demo_data.py --api-url http://localhost:8000
 
 ## Local LLM Configuration
 
-The system uses Ollama by default. Install and pull the model:
+The system reads LLM settings from `.env` or environment variables. Ollama remains
+the default if no values are provided:
 
 ```bash
 ollama pull llama3.2
 ```
 
-Configuration is hardcoded in `backend/app/core/config.py`:
+For the vLLM OpenAI-compatible server:
 
-```python
-llm_provider = "ollama"           # Options: "disabled", "ollama", "openai_compatible"
-llm_api_base_url = "http://localhost:11434"
-llm_model = "llama3.2"
-llm_timeout_seconds = 90
-use_llm_classifier = True
+```bash
+vllm serve Qwen/Qwen3-30B-A3B \
+  --served-model-name Qwen3-30B-A3B \
+  --api-key abc-123 \
+  --port 8000 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  --trust-remote-code
 ```
 
-To use a different LLM provider, modify the `Settings` class in `config.py`.
+Use these settings:
+
+```env
+LLM_PROVIDER=openai_compatible
+LLM_API_BASE_URL=http://localhost:8000/v1
+LLM_API_KEY=abc-123
+LLM_MODEL=Qwen3-30B-A3B
+LLM_TIMEOUT_SECONDS=90
+USE_LLM_CLASSIFIER=true
+```
+
+If `LLM_PROVIDER=openai_compatible` is set and the base URL omits `/v1`, the
+backend adds it automatically.
 
 If the LLM is unavailable or returns low confidence, the backend automatically falls back to the trained TF-IDF model, then keyword rules.
 

@@ -1,46 +1,361 @@
 text,category
 "My UPI payment failed but Rs 5000 was deducted from my account.",transaction_issue
-"I transferred money via NEFT but beneficiary has not received it after 2 days.",transaction_issue
-"IMPS transaction is stuck and money is debited from my account.",transaction_issue
+"I transferred money via NEFT but the beneficiary has not received it after two days.",transaction_issue
+"IMPS transaction is stuck and money has already been debited from my account.",transaction_issue
 "I was charged twice for the same transaction on my debit card.",transaction_issue
-"Payment to merchant failed but amount is deducted from my savings account.",transaction_issue
-"RTGS transfer showing pending for more than 4 hours.",transaction_issue
-"Money sent to wrong account number by mistake, need reversal.",transaction_issue
+"Payment to the merchant failed but the amount is deducted from my savings account.",transaction_issue
+"RTGS transfer is showing pending for more than four hours.",transaction_issue
+"I sent money to the wrong account number by mistake and need a reversal.",transaction_issue
 "My recurring payment failed and I got a penalty from the biller.",transaction_issue
-"I cannot login to my net banking account, keeps showing invalid credentials.",account_issue
-"My account has been blocked without any reason.",account_issue
+"The ATM did not dispense cash but my account balance was reduced.",transaction_issue
+"Card swipe at the petrol pump failed but I received a debit message.",transaction_issue
+"My UPI collect request was approved but the merchant says payment is not received.",transaction_issue
+"Refund for a failed ecommerce transaction has not been credited to my bank account.",transaction_issue
+"The bank deducted charges for a fund transfer that did not complete.",transaction_issue
+"I made a QR code payment and the app shows success but the shopkeeper has no credit.",transaction_issue
+"International card payment declined but the amount is blocked in my account.",transaction_issue
+"My salary transfer through IMPS is delayed and the reference number shows processing.",transaction_issue
+"I paid my credit card bill from savings account but it is not reflected.",transaction_issue
+"UPI transaction timed out and the amount is neither refunded nor credited.",transaction_issue
+"Cheque deposit shows cleared but the amount is missing from available balance.",transaction_issue
+"The same online purchase amount was debited three times from my account.",transaction_issue
+"I cannot login to my net banking account because it keeps showing invalid credentials.",account_issue
+"My account has been blocked without any clear reason.",account_issue
 "OTP is not coming to my registered mobile number.",account_issue
-"KYC verification is pending for more than 2 weeks.",account_issue
+"KYC verification is pending for more than two weeks.",account_issue
 "I need to update my address but the option is not working.",account_issue
-"My account is marked dormant but I use it regularly.",account_issue
-"Cannot change my registered mobile number in the app.",account_issue
-"Joint account holder name is showing incorrectly.",account_issue
+"My account is marked dormant even though I use it regularly.",account_issue
+"I cannot change my registered mobile number in the banking app.",account_issue
+"The joint account holder name is showing incorrectly.",account_issue
+"My savings account is frozen and branch staff are asking me to contact support.",account_issue
+"I forgot my customer ID and cannot recover it through the website.",account_issue
+"PAN details are wrong in my profile and I cannot edit them.",account_issue
+"My nominee update request has been pending for a month.",account_issue
+"The app says my debit card is inactive even though I received it yesterday.",account_issue
+"I am unable to reset my net banking password after multiple attempts.",account_issue
+"My account statement is showing the wrong email address.",account_issue
+"The bank rejected my KYC documents but did not explain what is missing.",account_issue
+"I cannot add a beneficiary because my profile says verification incomplete.",account_issue
+"My account type is displayed as current account instead of savings account.",account_issue
+"The branch linked to my account is incorrect in online banking.",account_issue
+"I am locked out after entering the correct password and OTP.",account_issue
 "I see an unauthorized transaction of Rs 25000 on my account.",fraud_security
 "Someone used my credit card for online shopping without my knowledge.",fraud_security
 "I received a phishing SMS asking for my bank details.",fraud_security
-"My debit card was cloned and used at an ATM.",fraud_security
-"Suspicious login attempt from unknown location on my account.",fraud_security
-"I did not authorize this transaction but money is gone.",fraud_security
-"Someone has stolen my identity and opened accounts in my name.",fraud_security
-"I shared OTP by mistake and money was stolen from my account.",fraud_security
-"My home loan application was rejected without proper reason.",loan_credit_issue
-"EMI amount is incorrect, they are charging more than agreed.",loan_credit_issue
-"Credit card bill shows wrong charges that I did not make.",loan_credit_issue
-"I want to foreclose my personal loan but facing issues.",loan_credit_issue
-"Interest rate on my loan is higher than what was promised.",loan_credit_issue
-"Credit limit was reduced without informing me.",loan_credit_issue
-"Late fee charged even though I paid EMI on time.",loan_credit_issue
-"My CIBIL score is wrong and affecting my loan application.",loan_credit_issue
-"Mobile banking app crashes every time I try to check balance.",technical_issue
-"Net banking website is showing server error since morning.",technical_issue
-"The app is very slow and transactions timeout frequently.",technical_issue
-"Session expires too quickly even when I am using the app.",technical_issue
-"Cannot download my account statement from the portal.",technical_issue
-"Fingerprint login is not working on the banking app.",technical_issue
-"Face recognition feature stopped working after app update.",technical_issue
-"The chatbot is not helpful and keeps giving wrong information.",technical_issue
-"I have a general query about opening a new FD account.",general
-"Want to know about the interest rates for savings account.",general
-"How do I apply for a new cheque book?",general
-"What are the charges for international transactions?",general
-
+"My account was hacked and money was transferred out.",fraud_security
+"There is a suspicious login alert from a city I have never visited.",fraud_security
+"I shared OTP by mistake and now money has been debited.",fraud_security
+"My debit card was stolen and someone withdrew cash from an ATM.",fraud_security
+"I got a call pretending to be bank support and now my UPI PIN may be compromised.",fraud_security
+"A new beneficiary was added to my account without my permission.",fraud_security
+"There are multiple small test transactions that I did not authorize.",fraud_security
+"I received an email link asking me to verify KYC and it looks fake.",fraud_security
+"My mobile banking session shows devices that are not mine.",fraud_security
+"I found a credit card transaction from an unknown foreign website.",fraud_security
+"Someone changed my registered mobile number without my approval.",fraud_security
+"My UPI ID was used for payments I never made.",fraud_security
+"I think my net banking password was leaked after a fraud call.",fraud_security
+"There is a loan enquiry on my profile that I did not request.",fraud_security
+"I received OTPs for transactions I did not initiate.",fraud_security
+"Please block my card immediately because I lost my wallet.",fraud_security
+"A fraudster convinced me to install a remote access app and money is gone.",fraud_security
+"My home loan EMI was deducted twice this month.",loan_credit_issue
+"Credit card dispute is pending for an incorrect charge.",loan_credit_issue
+"My loan application was rejected but no reason was provided.",loan_credit_issue
+"I paid the EMI but it still shows overdue.",loan_credit_issue
+"Credit card limit was reduced without informing me.",loan_credit_issue
+"I need foreclosure statement for my personal loan urgently.",loan_credit_issue
+"Interest rate on my loan account is higher than the sanctioned offer.",loan_credit_issue
+"My credit card annual fee was charged despite a lifetime free offer.",loan_credit_issue
+"The bank has not released my property documents after loan closure.",loan_credit_issue
+"My CIBIL score dropped because the bank reported a paid EMI as missed.",loan_credit_issue
+"I requested credit card cancellation but charges keep getting added.",loan_credit_issue
+"Loan part-payment was accepted but principal balance did not reduce.",loan_credit_issue
+"My education loan moratorium details are incorrect.",loan_credit_issue
+"I was promised a lower processing fee but the full amount was debited.",loan_credit_issue
+"Credit card reward points disappeared after statement generation.",loan_credit_issue
+"My car loan NOC has not been issued after full repayment.",loan_credit_issue
+"The EMI date change request was approved but deduction happened on the old date.",loan_credit_issue
+"I need a duplicate loan repayment schedule but the portal throws an error.",loan_credit_issue
+"My credit card settlement amount is not updated in the account.",loan_credit_issue
+"The bank charged late payment fees even though auto debit was active.",loan_credit_issue
+"The mobile banking app crashes whenever I open transactions.",technical_issue
+"Website shows server error when I try to download statements.",technical_issue
+"UPI page is blank after the latest app update.",technical_issue
+"Net banking keeps logging me out during fund transfer.",technical_issue
+"The app is very slow and transaction history does not load.",technical_issue
+"I cannot upload KYC documents because the file upload button is disabled.",technical_issue
+"The captcha on the login page never loads.",technical_issue
+"Payment confirmation screen freezes after entering OTP.",technical_issue
+"The dashboard shows wrong balance until I refresh many times.",technical_issue
+"Push notifications from the banking app stopped working.",technical_issue
+"I get a 502 gateway error while opening credit card services.",technical_issue
+"The app says network error even though my internet is working.",technical_issue
+"Biometric login fails every time after the new version update.",technical_issue
+"Statement PDF download starts but the file is corrupted.",technical_issue
+"I cannot open the loan section because it keeps spinning.",technical_issue
+"The chatbot window overlaps the submit button on mobile.",technical_issue
+"Transaction filters on the website do not apply correctly.",technical_issue
+"The banking portal is down for maintenance but no notice was shown.",technical_issue
+"I am unable to scan QR codes inside the app because the camera screen is black.",technical_issue
+"The complaint form resets after I type all details and press submit.",technical_issue
+"What are the working hours for my nearest branch?",general
+"Please tell me the documents required to open a savings account.",general
+"I want to know the current interest rate for fixed deposits.",general
+"How can I apply for a new debit card?",general
+"Please explain the charges for maintaining a minimum balance.",general
+"I need information about locker availability at my branch.",general
+"What is the daily cash withdrawal limit from ATM?",general
+"Can you share the customer care number for NRI banking?",general
+"I want to know whether my branch is open on Saturday.",general
+"Please guide me on how to download an account statement.",general
+"What are the eligibility criteria for a premium savings account?",general
+"How do I register for SMS banking alerts?",general
+"Please explain the difference between NEFT and RTGS timings.",general
+"I want to know the processing time for a cheque book request.",general
+"Can I open a joint account online?",general
+"What documents are needed for address change?",general
+"Please provide details about debit card replacement charges.",general
+"I need information about foreign currency exchange at the branch.",general
+"How can I update my email ID in bank records?",general
+"Please tell me the current locker rent charges.",general
+"My UPI payment to a grocery store is pending but the money left my account.",transaction_issue
+"I used my debit card at a restaurant and the bill amount was debited twice.",transaction_issue
+"NEFT transfer reference shows successful but the receiver says no funds arrived.",transaction_issue
+"I paid school fees online and the gateway failed after debiting my account.",transaction_issue
+"My IMPS transfer failed and the refund has not come back after 48 hours.",transaction_issue
+"The ATM cash withdrawal timed out and no cash came out but balance reduced.",transaction_issue
+"A merchant refund was processed last week but it is still not visible in my statement.",transaction_issue
+"My UPI payment was reversed according to the app but the amount is not credited.",transaction_issue
+"The electricity bill payment failed and the amount is stuck with the bank.",transaction_issue
+"I transferred rent by RTGS and the beneficiary bank has not credited it.",transaction_issue
+"My card transaction was declined at checkout but the amount is on hold.",transaction_issue
+"The same wallet top-up amount was deducted twice from my bank account.",transaction_issue
+"I paid insurance premium through net banking but the insurer has not received it.",transaction_issue
+"The transaction status is success but the merchant order was cancelled for non-payment.",transaction_issue
+"UPI autopay mandate deducted money but the subscription still shows unpaid.",transaction_issue
+"I sent money using a phone number and it went to the wrong beneficiary.",transaction_issue
+"My railway ticket payment failed but the bank has not refunded the amount.",transaction_issue
+"The card machine showed transaction failed but I got a debit alert instantly.",transaction_issue
+"A cheque clearing entry disappeared and the balance does not match.",transaction_issue
+"My online transfer has been in processing status since yesterday morning.",transaction_issue
+"I paid property tax through net banking and the receipt was not generated after debit.",transaction_issue
+"The beneficiary account number was correct but NEFT returned no confirmation.",transaction_issue
+"My debit card refund from a cancelled hotel booking is delayed.",transaction_issue
+"UPI payment shows waiting for bank confirmation for several hours.",transaction_issue
+"My credit card bill payment debited my savings account but card balance is unchanged.",transaction_issue
+"I was charged a failed transaction fee even though the payment did not complete.",transaction_issue
+"A POS reversal message came but the reversed amount is not in my account.",transaction_issue
+"My payment to a hospital failed and the deducted amount is urgently needed.",transaction_issue
+"I sent money through UPI Lite but the recipient did not get it.",transaction_issue
+"The bank deducted EMI manually even though the auto debit transaction failed.",transaction_issue
+"My inward remittance status says credited but it is missing from account balance.",transaction_issue
+"I cancelled an online purchase but the authorization hold is still blocking funds.",transaction_issue
+"The QR payment to a taxi driver failed and no refund has arrived.",transaction_issue
+"My transfer was rejected due to bank timeout but the amount was debited.",transaction_issue
+"I paid a loan installment by UPI and the lender has marked it unpaid.",transaction_issue
+"The merchant claims chargeback failed even though my card was debited.",transaction_issue
+"My toll recharge payment failed but the money is deducted from savings.",transaction_issue
+"The same ATM withdrawal appears two times in my mini statement.",transaction_issue
+"My debit card transaction reversal is pending beyond the promised timeline.",transaction_issue
+"A failed mobile recharge through the banking app was not refunded.",transaction_issue
+"My account unlock request was approved but I still cannot sign in.",account_issue
+"The bank app says my customer profile is incomplete even after KYC completion.",account_issue
+"I cannot activate my new debit card because my date of birth is not accepted.",account_issue
+"My name is misspelled on the account and online correction is unavailable.",account_issue
+"I need to change my communication address but the request keeps getting rejected.",account_issue
+"My net banking user ID is disabled after a branch migration.",account_issue
+"I am unable to register for mobile banking with my account number.",account_issue
+"The bank has linked the wrong Aadhaar status to my account profile.",account_issue
+"My account opening application is stuck at video KYC review.",account_issue
+"I cannot generate a new ATM PIN because my mobile number is not verified.",account_issue
+"My profile shows an old branch IFSC and I cannot update it.",account_issue
+"The nominee details I submitted are not reflected in the account.",account_issue
+"My minor account conversion request to regular savings is pending.",account_issue
+"I cannot close my account because the portal says there is an unknown restriction.",account_issue
+"The bank app asks for re-KYC every time I login.",account_issue
+"My current account GST number is incorrect in the profile.",account_issue
+"I cannot download my account certificate because the customer name is blank.",account_issue
+"My mobile number update was completed at branch but online banking still shows old number.",account_issue
+"The account is showing lien marked and nobody explained why.",account_issue
+"I cannot create a net banking password because security questions are missing.",account_issue
+"My email OTP arrives but the mobile OTP never comes for profile changes.",account_issue
+"I want to reactivate my dormant salary account but online request fails.",account_issue
+"The app says my account is already registered on another device.",account_issue
+"My account statement has an incorrect mailing address.",account_issue
+"I cannot add my account to UPI because bank verification fails.",account_issue
+"The bank rejected my signature update without giving a reason.",account_issue
+"My account holder type is incorrect after converting from joint to single.",account_issue
+"I cannot view my fixed deposit because it is not linked to my customer ID.",account_issue
+"The profile photo uploaded for KYC is not being accepted.",account_issue
+"My savings account is restricted for debit transactions after KYC expiry.",account_issue
+"The debit card activation page says no eligible account found.",account_issue
+"I cannot update FATCA details in internet banking.",account_issue
+"My login is blocked after device change even with correct credentials.",account_issue
+"The app does not show my newly opened account under the same customer ID.",account_issue
+"I am unable to set transaction limits because my profile verification is pending.",account_issue
+"My account has been incorrectly tagged as non-resident.",account_issue
+"I cannot register a beneficiary because account status says inactive.",account_issue
+"The branch changed my account category but online banking still shows the old one.",account_issue
+"I need to correct my father's name in account records.",account_issue
+"My passbook request cannot be submitted because the account details page crashes.",account_issue
+"I noticed a card-not-present purchase that I never made.",fraud_security
+"Someone logged into my banking app and changed security settings.",fraud_security
+"I got a fake bank call asking for card CVV and then money was withdrawn.",fraud_security
+"There are UPI debit entries at midnight that I did not authorize.",fraud_security
+"My credit card has an unknown international transaction.",fraud_security
+"I clicked a KYC update link and now my account balance is missing.",fraud_security
+"A stranger added their device to my mobile banking profile.",fraud_security
+"I received debit alerts while my card was with me.",fraud_security
+"Please freeze my account because I suspect SIM swap fraud.",fraud_security
+"An unknown payee was created and funds were transferred immediately.",fraud_security
+"I am getting OTP messages for login attempts I did not make.",fraud_security
+"My UPI PIN was reset without my permission.",fraud_security
+"Someone used my lost debit card for contactless payments.",fraud_security
+"A fraudulent loan application was made using my PAN.",fraud_security
+"My account shows suspicious cash withdrawals from another state.",fraud_security
+"I installed an app suggested by a caller and then unauthorized transfers happened.",fraud_security
+"The transaction description shows an unknown crypto merchant.",fraud_security
+"I received a fake reward points link and entered card details by mistake.",fraud_security
+"My net banking beneficiary list contains names I never added.",fraud_security
+"There are repeated failed login alerts from an unknown IP address.",fraud_security
+"I suspect my debit card has been cloned after ATM use.",fraud_security
+"Someone changed my email ID and I cannot receive banking alerts.",fraud_security
+"A QR code payment request tricked me into sending money.",fraud_security
+"My mobile number was ported and bank transactions started without approval.",fraud_security
+"I see unauthorized wallet load transactions from my savings account.",fraud_security
+"A fraudster posing as bank staff asked me to share screen and stole funds.",fraud_security
+"My credit card was used after I had already requested it to be blocked.",fraud_security
+"There are unknown standing instructions created on my account.",fraud_security
+"I received a message that my debit card was added to a new device wallet.",fraud_security
+"A suspicious merchant charged my card multiple times.",fraud_security
+"My bank account is being used for transactions I do not recognize.",fraud_security
+"The fraud helpline is not reachable and unauthorized debits are continuing.",fraud_security
+"I see a transfer to a mule account mentioned in a police complaint.",fraud_security
+"My OTP was intercepted and my net banking password was changed.",fraud_security
+"An unknown person withdrew cash using cardless withdrawal from my account.",fraud_security
+"I never applied for a credit card but one appears active in my name.",fraud_security
+"My account has suspicious beneficiary cooling period bypass activity.",fraud_security
+"I received a phishing email that copied the bank logo and login page.",fraud_security
+"Please block all digital channels because my phone was stolen.",fraud_security
+"My salary account received fraud dispute notices for transactions I did not do.",fraud_security
+"My personal loan disbursal amount is less than the sanctioned amount.",loan_credit_issue
+"The credit card EMI conversion was processed with the wrong tenure.",loan_credit_issue
+"My home loan interest certificate has incorrect figures.",loan_credit_issue
+"The bank is charging prepayment penalty despite no penalty in my agreement.",loan_credit_issue
+"My credit card dispute was closed without checking the evidence.",loan_credit_issue
+"The loan EMI bounced because the bank used the wrong debit account.",loan_credit_issue
+"My credit card statement shows finance charges after full payment.",loan_credit_issue
+"I applied for a top-up loan and the status has not changed for weeks.",loan_credit_issue
+"My two-wheeler loan account still shows active after full settlement.",loan_credit_issue
+"The bank reported my closed credit card as overdue.",loan_credit_issue
+"My loan insurance premium was deducted without consent.",loan_credit_issue
+"I requested a credit card limit increase but the app reduced my limit.",loan_credit_issue
+"My EMI holiday request was approved but penalty was charged.",loan_credit_issue
+"The personal loan processing fee refund has not been credited.",loan_credit_issue
+"My credit card cash withdrawal fee is incorrect.",loan_credit_issue
+"The loan statement does not include my latest repayment.",loan_credit_issue
+"My mortgage account was debited for charges not mentioned in the schedule.",loan_credit_issue
+"The credit card autopay paid the minimum amount instead of full amount.",loan_credit_issue
+"My business loan renewal application is stuck with no update.",loan_credit_issue
+"The bank issued a credit card against the wrong billing address.",loan_credit_issue
+"My gold loan closure receipt is not available after repayment.",loan_credit_issue
+"I was charged GST twice on credit card fees.",loan_credit_issue
+"My loan restructuring request was rejected without review.",loan_credit_issue
+"The EMI amount changed suddenly without any rate change notice.",loan_credit_issue
+"I paid credit card dues before due date but late fee was still applied.",loan_credit_issue
+"My housing loan subsidy benefit has not been credited.",loan_credit_issue
+"The credit card dispute amount is still included in minimum due.",loan_credit_issue
+"My loan account shows penal interest though payment was made on time.",loan_credit_issue
+"The bank has not updated collateral release status after loan closure.",loan_credit_issue
+"My credit card reward redemption failed but points were deducted.",loan_credit_issue
+"The loan app asks for documents already submitted at the branch.",loan_credit_issue
+"My pre-approved loan offer disappeared after I accepted it.",loan_credit_issue
+"The bank calculated EMI using a higher interest rate than my sanction letter.",loan_credit_issue
+"My credit card balance transfer request was processed incorrectly.",loan_credit_issue
+"The moratorium extension is not reflected in my education loan.",loan_credit_issue
+"My NOC for vehicle loan has the wrong registration number.",loan_credit_issue
+"The loan closure amount quoted by branch and app are different.",loan_credit_issue
+"My add-on credit card was billed separately by mistake.",loan_credit_issue
+"The EMI debit happened after loan closure and needs refund.",loan_credit_issue
+"My credit card annual fee waiver condition was met but fee remains.",loan_credit_issue
+"The mobile app freezes when I try to authenticate a transaction.",technical_issue
+"Net banking displays a blank page after I enter OTP.",technical_issue
+"The bank website certificate warning appears on every login attempt.",technical_issue
+"I cannot open transaction details because the page keeps loading forever.",technical_issue
+"The app crashes while adding a new beneficiary.",technical_issue
+"Face ID login opens and immediately returns to the login screen.",technical_issue
+"The credit card tab shows a technical error for the last three days.",technical_issue
+"The server returns an error when I submit a service request.",technical_issue
+"I cannot select my branch in the dropdown because the list is empty.",technical_issue
+"The statement download button does nothing on Chrome.",technical_issue
+"The app notification opens the wrong ticket when tapped.",technical_issue
+"I cannot complete video KYC because the camera permission screen is stuck.",technical_issue
+"The UPI section shows service unavailable during every attempt.",technical_issue
+"The transaction history search gives wrong results for selected dates.",technical_issue
+"My dashboard loads old cached balances even after logout.",technical_issue
+"The app update removed the option to manage cards.",technical_issue
+"I cannot attach PDF proof because the upload keeps failing.",technical_issue
+"The complaint tracking page shows an unexpected application error.",technical_issue
+"The chatbot stops responding after I choose banking services.",technical_issue
+"The net banking page is not usable on mobile because buttons overlap.",technical_issue
+"The OTP input boxes do not accept numbers on my browser.",technical_issue
+"The banking app consumes high battery and closes in the background.",technical_issue
+"The login page keeps redirecting between two URLs.",technical_issue
+"I cannot print the fixed deposit advice because the PDF opens blank.",technical_issue
+"The payment page shows duplicate submit buttons and neither works.",technical_issue
+"The app says session expired immediately after successful login.",technical_issue
+"The card controls screen shows a spinning loader for several minutes.",technical_issue
+"The account summary API seems down because every account shows unavailable.",technical_issue
+"The portal displays unreadable characters in my statement.",technical_issue
+"I cannot change language settings because the preferences page crashes.",technical_issue
+"The mobile app keyboard covers the submit button on the complaint form.",technical_issue
+"The loan calculator returns an error for valid loan amounts.",technical_issue
+"The website keeps asking me to clear cache but still does not work.",technical_issue
+"I cannot receive in-app approval prompts for UPI transactions.",technical_issue
+"The branch locator map does not load any locations.",technical_issue
+"The app logs out whenever I switch to SMS to read OTP.",technical_issue
+"The scanned cheque image is not visible in the deposit status page.",technical_issue
+"The card PIN change page fails after final confirmation.",technical_issue
+"The digital passbook sync has not updated for a week.",technical_issue
+"The transaction receipt share button crashes the app.",technical_issue
+"What is the minimum balance requirement for a salary account?",general
+"Please tell me how to request a new cheque book.",general
+"I want information about senior citizen fixed deposit rates.",general
+"How can I find my bank IFSC code?",general
+"Please explain the process to add a nominee.",general
+"What is the charge for issuing a demand draft?",general
+"Can you tell me the branch lunch timings?",general
+"How do I enable international usage on my debit card?",general
+"What is the maximum UPI transfer limit per day?",general
+"Please explain how to register for internet banking.",general
+"I want to know the documents needed for current account opening.",general
+"How can I check my reward points balance?",general
+"Please share the process for getting a duplicate passbook.",general
+"What is the timeline for debit card delivery?",general
+"Can you tell me the charges for SMS alerts?",general
+"How do I update my nominee for fixed deposit?",general
+"What are the locker nomination rules?",general
+"Please explain the tax saving fixed deposit lock-in period.",general
+"I want details about doorstep banking services.",general
+"How can I request a solvency certificate?",general
+"What is the process to issue a balance certificate?",general
+"Can I schedule an appointment with the branch manager?",general
+"Please tell me the NEFT holiday schedule.",general
+"How do I enable email statements every month?",general
+"What is the difference between savings and current account?",general
+"Please explain debit card variants and annual charges.",general
+"How can I apply for a forex card?",general
+"What documents are required for opening an NRI account?",general
+"Please tell me how to stop paper statements.",general
+"How do I generate a UPI ID in the banking app?",general
+"What is the process for changing account operating instructions?",general
+"Can I request a cheque stop payment online?",general
+"Please explain the charges for outward remittance.",general
+"How can I get a bank account closure form?",general
+"What is the cutoff time for same-day RTGS?",general
+"Please provide information about recurring deposit maturity.",general
+"How do I apply for mobile number registration at branch?",general
+"Can I link multiple accounts to one debit card?",general
+"What are the documents required for locker application?",general
+"Please explain how to download Form 16A from net banking.",general

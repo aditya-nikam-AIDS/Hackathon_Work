@@ -12,6 +12,7 @@ from backend.app.db.models import Ticket
 from backend.app.schemas.tickets import ComplaintCreate, DashboardResponse, TicketResponse
 from backend.app.services.agentic.workflow import ComplaintAgentWorkflow
 from backend.app.services.optimizer import performance_metrics, ticket_optimizer
+from backend.app.services.routing_engine import DEFAULT_ROUTES
 from backend.app.services.sla_engine import SLAEngine
 
 
@@ -45,6 +46,7 @@ class TicketService:
             customer_tier=payload.customer_tier,
             metadata=payload.metadata,
             created_at=created_at,
+            classification_mode=payload.classification_mode,
         )
         classification = decision.classification
         priority_decision = decision.priority_decision
@@ -64,6 +66,7 @@ class TicketService:
         
         metadata = {
             **payload.metadata,
+            "classification_mode": payload.classification_mode,
             "agentic_workflow": {
                 "version": decision.workflow_version,
                 "requires_human_review": decision.requires_human_review,
@@ -165,6 +168,50 @@ class TicketService:
             tickets=responses,
         )
 
+    def reroute_ticket(
+        self,
+        db: Session,
+        *,
+        ticket_id: str,
+        team: str,
+        observation: str,
+        status: str | None = None,
+    ) -> TicketResponse | None:
+        ticket = db.get(Ticket, ticket_id)
+        if ticket is None:
+            return None
+
+        now = datetime.now(timezone.utc)
+        metadata = self._metadata_for(ticket)
+        reroute_history = metadata.setdefault("reroute_history", [])
+        reroute_history.append(
+            {
+                "from_team": ticket.team,
+                "to_team": team,
+                "observation": observation,
+                "changed_at": now.isoformat(),
+                "source": "agent_observation",
+            }
+        )
+
+        ticket.team = team
+        if status:
+            ticket.status = status
+        ticket.metadata_json = json.dumps(metadata)
+        ticket.updated_at = now
+        db.commit()
+        db.refresh(ticket)
+        return self.to_response(ticket)
+
+    def available_teams(self) -> list[str]:
+        default_teams = set(DEFAULT_ROUTES.values())
+        escalation_teams = {
+            "Fraud Incident Response Team",
+            "Priority Banking Desk",
+            "Relationship Manager Team",
+        }
+        return sorted(default_teams | escalation_teams)
+
     def mark_breached_tickets(self, db: Session) -> int:
         open_tickets = db.execute(
             select(Ticket).where(Ticket.status.in_(["open", "in_progress"]), Ticket.escalated_at.is_(None))
@@ -183,12 +230,7 @@ class TicketService:
 
     def to_response(self, ticket: Ticket) -> TicketResponse:
         sla_status = self.sla_engine.status_for(deadline=ticket.sla_deadline, ticket_status=ticket.status)
-        metadata = {}
-        if ticket.metadata_json:
-            try:
-                metadata = json.loads(ticket.metadata_json)
-            except json.JSONDecodeError:
-                metadata = {}
+        metadata = self._metadata_for(ticket)
 
         return TicketResponse(
             id=ticket.id,
@@ -211,6 +253,14 @@ class TicketService:
             created_at=ticket.created_at,
             updated_at=ticket.updated_at,
         )
+
+    def _metadata_for(self, ticket: Ticket) -> dict:
+        if not ticket.metadata_json:
+            return {}
+        try:
+            return json.loads(ticket.metadata_json)
+        except json.JSONDecodeError:
+            return {}
 
 
 ticket_service = TicketService()

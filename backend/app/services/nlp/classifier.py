@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 from pathlib import Path
 
 import joblib
@@ -114,19 +115,26 @@ class ClassificationResult:
     model_reason: str = ""
 
 
+ClassificationMode = Literal["auto", "llm", "tfidf"]
+
+
 class ComplaintClassifier:
     def __init__(self, settings: Settings):
         self.settings = settings
         self.llm_client = LLMClient(settings)
         self.model = self._load_model(settings.model_path)
 
-    async def classify(self, text: str) -> ClassificationResult:
-        llm_analysis = await self.llm_client.analyze_complaint(text)
-        if llm_analysis and llm_analysis.confidence >= 0.55:
-            return self._from_llm(llm_analysis, text)
+    async def classify(self, text: str, mode: ClassificationMode = "auto") -> ClassificationResult:
+        llm_analysis = None
+        if mode in {"auto", "llm"}:
+            llm_analysis = await self.llm_client.analyze_complaint(text)
+            if llm_analysis and llm_analysis.confidence >= 0.55:
+                return self._from_llm(llm_analysis, text)
 
         ml_result = self._classify_with_trained_model(text)
         if ml_result:
+            if mode == "tfidf":
+                ml_result.model_reason = "TF-IDF classifier selected by agent."
             return ml_result
 
         return self._keyword_fallback(text, llm_analysis)

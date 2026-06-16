@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from backend.app.db.session import get_db
-from backend.app.schemas.tickets import ComplaintCreate, DashboardResponse, TicketResponse
+from backend.app.schemas.tickets import ComplaintCreate, DashboardResponse, TicketResponse, TicketReroute
 from backend.app.services.optimizer import BANKING_TICKET_TEMPLATES, performance_metrics
 from backend.app.services.ticket_service import ticket_service
 
@@ -83,6 +83,29 @@ def submit_ticket_feedback(
         "feedback_data": feedback_data,
         "message": "Thank you! This feedback will help improve classification accuracy.",
     }
+
+
+@router.post("/tickets/{ticket_id}/reroute", response_model=TicketResponse)
+def reroute_ticket(
+    ticket_id: str,
+    payload: TicketReroute,
+    db: Session = Depends(get_db),
+) -> TicketResponse:
+    updated = ticket_service.reroute_ticket(
+        db,
+        ticket_id=ticket_id,
+        team=payload.team,
+        observation=payload.observation,
+        status=payload.status,
+    )
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return updated
+
+
+@router.get("/teams")
+def get_available_teams() -> dict[str, list[str]]:
+    return {"teams": ticket_service.available_teams()}
 
 
 @router.get("/workload")

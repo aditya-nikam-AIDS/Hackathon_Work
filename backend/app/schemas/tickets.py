@@ -7,13 +7,21 @@ from pydantic import BaseModel, ConfigDict, Field
 CustomerTier = Literal["vip", "premium", "standard", "trial"]
 Priority = Literal["critical", "high", "medium", "low"]
 TicketStatus = Literal["open", "in_progress", "resolved", "closed"]
+ClassificationMode = Literal["auto", "llm", "tfidf"]
 
 
 class ComplaintCreate(BaseModel):
     complaint_text: str = Field(..., min_length=5, max_length=8000)
     customer_id: str | None = Field(default=None, max_length=120)
     customer_tier: CustomerTier = "standard"
+    classification_mode: ClassificationMode = "auto"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class TicketReroute(BaseModel):
+    team: str = Field(..., min_length=2, max_length=80)
+    observation: str = Field(..., min_length=5, max_length=1000)
+    status: TicketStatus | None = None
 
 
 class TicketResponse(BaseModel):
