@@ -3,57 +3,74 @@ from dataclasses import dataclass, field
 from backend.app.services.nlp.preprocessor import clean_text
 
 
+# Banking domain critical keywords - immediate action required
 CRITICAL_KEYWORDS = {
     "account hacked",
-    "data breach",
+    "unauthorized transaction",
     "fraud",
-    "lawsuit",
-    "legal action",
+    "money stolen",
     "phishing",
-    "security incident",
-    "stolen",
-    "unauthorized",
+    "security breach",
+    "identity theft",
+    "card cloned",
+    "suspicious login",
+    "otp misuse",
+    "system outage",
+    "atm swallowed card",
+    "large amount missing",
+    "account frozen wrongly",
 }
 
+# Banking domain high priority keywords
 HIGH_KEYWORDS = {
-    "angry",
-    "cancel",
-    "chargeback",
-    "charged twice",
+    "payment failed",
+    "money deducted not received",
+    "transaction stuck",
+    "upi failed",
+    "neft pending",
+    "imps failed",
+    "account blocked",
+    "login failed",
+    "cannot access account",
+    "emi not debited",
+    "loan rejected wrongly",
+    "credit card dispute",
+    "urgent",
     "escalate",
     "manager",
-    "never arrived",
-    "outage",
-    "refund now",
-    "urgent",
 }
 
+# Banking domain medium priority keywords
 MEDIUM_KEYWORDS = {
-    "broken",
-    "damaged",
-    "delay",
-    "incorrect",
-    "late",
-    "missing",
-    "not working",
-    "refund",
+    "transaction delay",
+    "statement incorrect",
+    "wrong debit",
+    "kyc pending",
+    "account update",
+    "beneficiary issue",
+    "cheque bounce",
+    "interest rate query",
+    "emi schedule",
+    "credit limit",
+    "passbook update",
+    "balance mismatch",
 }
 
+# Customer tier weights for banking
 CUSTOMER_TIER_WEIGHT = {
-    "vip": 1.5,
-    "premium": 0.75,
-    "standard": 0.0,
-    "trial": 0.0,
+    "vip": 2.0,        # VIP banking customers get highest priority
+    "premium": 1.0,    # Premium account holders
+    "standard": 0.0,   # Regular customers
+    "trial": 0.0,      # Trial/new customers
 }
 
+# Category risk weights for banking
 CATEGORY_WEIGHT = {
-    "fraud_security": 2.0,
-    "billing": 0.75,
-    "technical": 0.75,
-    "refund": 0.5,
-    "delivery": 0.5,
-    "product_quality": 0.5,
-    "account": 0.25,
+    "fraud_security": 2.5,      # Highest risk - financial crime
+    "transaction_issue": 1.5,   # Money at stake
+    "loan_credit_issue": 1.0,   # Credit/loan matters
+    "account_issue": 0.75,      # Account access issues
+    "technical_issue": 0.5,     # App/system issues
     "general": 0.0,
 }
 

@@ -6,15 +6,14 @@ from typing import Any
 from backend.app.core.config import Settings
 
 
+# Banking domain categories
 ALLOWED_CATEGORIES = {
-    "billing",
-    "technical",
-    "delivery",
-    "product_quality",
-    "account",
-    "fraud_security",
-    "refund",
-    "general",
+    "transaction_issue",    # Failed transactions, payment delays, money deducted but not received
+    "account_issue",        # Login problems, account blocked, KYC issues
+    "fraud_security",       # Unauthorized transactions, suspicious activity, phishing
+    "loan_credit_issue",    # Loan approval/rejection, EMI issues, credit card disputes
+    "technical_issue",      # App crashes, website errors, system downtime
+    "general",              # General inquiries
 }
 
 
@@ -49,10 +48,17 @@ class LLMClient:
             return None
 
         system_prompt = (
-            "You classify customer complaints for a support routing system. "
+            "You are an AI system for BANKING CUSTOMER SUPPORT. "
+            "Classify customer complaints into banking categories. "
             "Return only valid JSON with keys: category, sentiment_score, "
-            "urgency_signals, confidence, reason. category must be one of "
-            f"{sorted(ALLOWED_CATEGORIES)}. sentiment_score is -1 to 1."
+            "urgency_signals, confidence, reason. "
+            f"category must be one of {sorted(ALLOWED_CATEGORIES)}. "
+            "Categories: transaction_issue (failed payments, UPI/NEFT/IMPS issues, money deducted but not received), "
+            "account_issue (login problems, account blocked, KYC issues), "
+            "fraud_security (unauthorized transactions, phishing, suspicious activity), "
+            "loan_credit_issue (loan/EMI/credit card issues), "
+            "technical_issue (app crashes, website errors). "
+            "sentiment_score is -1 to 1 (-1=very negative, 0=neutral, 1=positive)."
         )
 
         try:
@@ -74,10 +80,11 @@ class LLMClient:
             return None
 
         system_prompt = (
-            "You are an agentic support triage supervisor. "
-            "Create an operational action plan for a newly routed customer complaint. "
+            "You are a BANKING support triage supervisor. "
+            "Create an operational action plan for a customer banking complaint. "
+            "Consider regulatory compliance, customer protection, and banking SLAs. "
             "Return only valid JSON with keys: requires_human_review, recommended_actions, "
-            "escalation_summary, confidence. recommended_actions must be a list of short actions."
+            "escalation_summary, confidence. recommended_actions must be a list of short banking-specific actions."
         )
         user_prompt = json.dumps(
             {

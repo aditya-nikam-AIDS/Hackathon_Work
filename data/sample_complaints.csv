@@ -1,34 +1,46 @@
 text,category
-"I was charged twice for my monthly subscription and need this fixed.",billing
-"The invoice amount is incorrect and shows an overcharged payment.",billing
-"My payment failed but money was deducted from my bank account.",billing
-"The renewal price is different from what was promised.",billing
-"The mobile app crashes whenever I try to login.",technical
-"I cannot reset my password because the OTP never arrives.",technical
-"Your website shows a server error after checkout.",technical
-"The service has been down all morning and nothing is working.",technical
-"My package never arrived even though tracking says delivered.",delivery
-"The courier delayed my shipment for three days.",delivery
-"The parcel is stuck at the warehouse with no update.",delivery
-"The delivery address was correct but the order went somewhere else.",delivery
-"The product arrived broken and has scratches on the screen.",product_quality
-"The item is defective and stops working after ten minutes.",product_quality
-"The box had a missing part and poor quality accessories.",product_quality
-"The food product was spoiled when it reached me.",product_quality
-"I need to change the email address on my account.",account
-"Please cancel my account and stop future renewals.",account
-"My profile details are wrong after the KYC update.",account
-"I cannot upgrade my plan from the account settings page.",account
-"My account was hacked and I see an unauthorized transaction.",fraud_security
-"This looks like fraud because someone used my card without permission.",fraud_security
-"I received a phishing message pretending to be your support team.",fraud_security
-"There may be a data breach because my personal details were exposed.",fraud_security
-"I returned the item but the refund has not been credited.",refund
-"I want my money back for the cancelled order.",refund
-"The chargeback request is pending for more than a week.",refund
-"Refund now because the order was cancelled by your team.",refund
-"I have a general complaint about the customer service experience.",general
-"I want to talk to a manager about repeated poor support.",general
-"Your team has not responded to my previous complaint.",general
-"I am disappointed with the overall experience and need help.",general
+"My UPI payment failed but Rs 5000 was deducted from my account.",transaction_issue
+"I transferred money via NEFT but beneficiary has not received it after 2 days.",transaction_issue
+"IMPS transaction is stuck and money is debited from my account.",transaction_issue
+"I was charged twice for the same transaction on my debit card.",transaction_issue
+"Payment to merchant failed but amount is deducted from my savings account.",transaction_issue
+"RTGS transfer showing pending for more than 4 hours.",transaction_issue
+"Money sent to wrong account number by mistake, need reversal.",transaction_issue
+"My recurring payment failed and I got a penalty from the biller.",transaction_issue
+"I cannot login to my net banking account, keeps showing invalid credentials.",account_issue
+"My account has been blocked without any reason.",account_issue
+"OTP is not coming to my registered mobile number.",account_issue
+"KYC verification is pending for more than 2 weeks.",account_issue
+"I need to update my address but the option is not working.",account_issue
+"My account is marked dormant but I use it regularly.",account_issue
+"Cannot change my registered mobile number in the app.",account_issue
+"Joint account holder name is showing incorrectly.",account_issue
+"I see an unauthorized transaction of Rs 25000 on my account.",fraud_security
+"Someone used my credit card for online shopping without my knowledge.",fraud_security
+"I received a phishing SMS asking for my bank details.",fraud_security
+"My debit card was cloned and used at an ATM.",fraud_security
+"Suspicious login attempt from unknown location on my account.",fraud_security
+"I did not authorize this transaction but money is gone.",fraud_security
+"Someone has stolen my identity and opened accounts in my name.",fraud_security
+"I shared OTP by mistake and money was stolen from my account.",fraud_security
+"My home loan application was rejected without proper reason.",loan_credit_issue
+"EMI amount is incorrect, they are charging more than agreed.",loan_credit_issue
+"Credit card bill shows wrong charges that I did not make.",loan_credit_issue
+"I want to foreclose my personal loan but facing issues.",loan_credit_issue
+"Interest rate on my loan is higher than what was promised.",loan_credit_issue
+"Credit limit was reduced without informing me.",loan_credit_issue
+"Late fee charged even though I paid EMI on time.",loan_credit_issue
+"My CIBIL score is wrong and affecting my loan application.",loan_credit_issue
+"Mobile banking app crashes every time I try to check balance.",technical_issue
+"Net banking website is showing server error since morning.",technical_issue
+"The app is very slow and transactions timeout frequently.",technical_issue
+"Session expires too quickly even when I am using the app.",technical_issue
+"Cannot download my account statement from the portal.",technical_issue
+"Fingerprint login is not working on the banking app.",technical_issue
+"Face recognition feature stopped working after app update.",technical_issue
+"The chatbot is not helpful and keeps giving wrong information.",technical_issue
+"I have a general query about opening a new FD account.",general
+"Want to know about the interest rates for savings account.",general
+"How do I apply for a new cheque book?",general
+"What are the charges for international transactions?",general
 

@@ -2,14 +2,16 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 
+# Banking domain SLA hours - faster response times required
 SLA_HOURS = {
-    "critical": 2,
-    "high": 8,
-    "medium": 24,
-    "low": 72,
+    "critical": 1,    # 1 hour for fraud, security, VIP urgent
+    "high": 4,        # 4 hours for payment failures, login issues
+    "medium": 12,     # 12 hours for general issues, delays
+    "low": 24,        # 24 hours for minor queries, informational
 }
 
-WARNING_THRESHOLD_SECONDS = 30 * 60
+# Warning threshold at 15 minutes for banking (faster escalation)
+WARNING_THRESHOLD_SECONDS = 15 * 60
 
 
 @dataclass

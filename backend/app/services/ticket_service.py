@@ -1,4 +1,5 @@
 import json
+import time
 from collections import Counter
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -10,6 +11,7 @@ from backend.app.core.config import get_settings
 from backend.app.db.models import Ticket
 from backend.app.schemas.tickets import ComplaintCreate, DashboardResponse, TicketResponse
 from backend.app.services.agentic.workflow import ComplaintAgentWorkflow
+from backend.app.services.optimizer import performance_metrics, ticket_optimizer
 from backend.app.services.sla_engine import SLAEngine
 
 
@@ -18,9 +20,25 @@ class TicketService:
         settings = get_settings()
         self.agent_workflow = ComplaintAgentWorkflow(settings)
         self.sla_engine = SLAEngine()
+        self.optimizer = ticket_optimizer
 
     async def create_ticket(self, db: Session, payload: ComplaintCreate) -> TicketResponse:
+        start_time = time.time()
         created_at = datetime.now(timezone.utc)
+        
+        # Check for duplicate tickets
+        similar_tickets = self.optimizer.find_similar_tickets(
+            db, payload.complaint_text, payload.customer_id
+        )
+        
+        if similar_tickets:
+            performance_metrics.record_duplicate_detected()
+            # Add duplicate warning to metadata
+            payload.metadata["duplicate_warning"] = {
+                "similar_ticket_ids": [t.id for t in similar_tickets[:3]],
+                "similarity_detected": True,
+            }
+        
         decision = await self.agent_workflow.process(
             complaint_text=payload.complaint_text,
             customer_id=payload.customer_id,
@@ -31,6 +49,19 @@ class TicketService:
         classification = decision.classification
         priority_decision = decision.priority_decision
         routing_decision = decision.routing_decision
+        
+        # Calculate confidence score
+        confidence_score = self.optimizer.calculate_confidence_score(
+            classification.confidence,
+            priority_decision.score,
+            len(similar_tickets) > 0,
+        )
+        
+        # Get auto-response suggestion
+        auto_response = self.optimizer.suggest_auto_response(
+            classification.category, priority_decision.priority
+        )
+        
         metadata = {
             **payload.metadata,
             "agentic_workflow": {
@@ -39,6 +70,11 @@ class TicketService:
                 "recommended_actions": decision.recommended_actions,
                 "escalation_summary": decision.escalation_summary,
                 "trace": decision.agent_trace,
+            },
+            "optimization": {
+                "confidence_score": confidence_score,
+                "auto_response": auto_response,
+                "processing_time_ms": 0,  # Will update below
             },
         }
 
@@ -63,6 +99,16 @@ class TicketService:
         db.add(ticket)
         db.commit()
         db.refresh(ticket)
+        
+        # Record performance metrics
+        processing_time = (time.time() - start_time) * 1000
+        performance_metrics.record_processing_time(processing_time)
+        
+        # Update metadata with actual processing time
+        metadata["optimization"]["processing_time_ms"] = round(processing_time, 2)
+        ticket.metadata_json = json.dumps(metadata)
+        db.commit()
+        
         return self.to_response(ticket)
 
     def list_tickets(
